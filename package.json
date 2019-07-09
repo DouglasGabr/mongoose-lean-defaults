@@ -4,7 +4,8 @@
   "description": "Attach defaults to the results of mongoose queries when using `.lean()`",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "dev": "jest --watchAll"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,15 @@
   "bugs": {
     "url": "https://github.com/douglasgabr/mongoose-lean-defaults/issues"
   },
-  "homepage": "https://github.com/douglasgabr/mongoose-lean-defaults#readme"
+  "homepage": "https://github.com/douglasgabr/mongoose-lean-defaults#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/mongoose": "^5.5.7",
+    "eslint": "^6.0.1",
+    "jest": "^24.8.0",
+    "mongoose": "^5.6.4"
+  },
+  "dependencies": {
+    "mpath": "^0.6.0"
+  }
 }

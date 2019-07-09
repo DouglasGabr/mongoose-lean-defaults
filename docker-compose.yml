@@ -1,0 +1,10 @@
+version: '3.6'
+services:
+  plugin:
+    build: ./
+    volumes:
+      - ./:/code
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
