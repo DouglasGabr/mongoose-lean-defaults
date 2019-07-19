@@ -87,7 +87,13 @@ function attachDefaultsToDoc(schema, doc, defaults) {
   for (let i = 0; i < numDefaults; ++i) {
     const toApply = defaults[i]
     if (!mpath.has(toApply.path, doc)) {
-      mpath.set(toApply.path, toApply.default, doc)
+      const sp = toApply.path.split('.')
+      let cur = doc
+      for (let j = 0; j < sp.length - 1; ++j) {
+        cur[sp[j]] = sp[j] in cur ? cur[sp[j]] : {}
+        cur = cur[sp[j]]
+      }
+      cur[sp[sp.length - 1]] = toApply.default
     }
   }
 }

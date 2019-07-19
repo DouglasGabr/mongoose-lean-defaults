@@ -4,16 +4,27 @@ const mongooseLeanDefaults = require('../')
 function validateRegularBob(bob) {
   expect(bob.country).toBeUndefined()
   expect(bob.aliases).toBeUndefined()
+  expect(bob.arrayWithDefault).toBeUndefined()
+  expect(bob.nested).toBeUndefined()
 }
 function validateBob(bob) {
   expect(bob.country).toBe('USA')
   expect(bob.aliases).toBeDefined()
   expect(bob.aliases).toHaveLength(0)
+  expect(bob.arrayWithDefault).toBeUndefined()
+  expect(bob.nested).toBeDefined()
+  expect(bob.nested.prop).toBe('Default')
+  expect(bob.nested.other).toBe(true)
+  expect(bob.nested.noDefault).toBeUndefined()
 }
 function validateAlice(alice) {
   expect(alice.country).toBe('CA')
   expect(alice.aliases).toBeDefined()
-  expect(alice.aliases).toHaveLength(1)
+  expect(alice.arrayWithDefault).toBeUndefined()
+  expect(alice.nested).toBeDefined()
+  expect(alice.nested.prop).toBe('Prop')
+  expect(alice.nested.other).toBe(false)
+  expect(alice.nested.noDefault).toBe('Test')
 }
 
 const bobId = '5d23fa87d7f8b00011fa25c5'
@@ -25,14 +36,45 @@ describe('mongooseLeanDefaults', () => {
 
   beforeAll(async done => {
     await mongoose.connect('mongodb://mongodb:27017/mongooseLeanDefaults', { useNewUrlParser: true })
-    const oldSchema = new mongoose.Schema({ name: String }, { collection: 'users' })
+    const oldSchema = new mongoose.Schema({
+      name: String
+    }, { collection: 'users' })
     const OldUser = mongoose.model('OldUser', oldSchema)
-    await OldUser.create({ _id: bobId, name: 'Bob' })
+    await OldUser.create({
+      _id: bobId,
+      name: 'Bob'
+    })
 
-    schema = new mongoose.Schema({ name: String, country: { type: String, default: 'USA' }, aliases: [String], test: { type: [String], default: undefined } }, { collection: 'users' })
+    schema = new mongoose.Schema({
+      name: String,
+      country: { type: String, default: 'USA' },
+      aliases: [String],
+      arrayWithDefault: { type: [String], default: undefined },
+      nested: {
+        prop: {
+          type: String,
+          default: 'Default'
+        },
+        other: {
+          type: Boolean,
+          default: true
+        },
+        noDefault: String
+      }
+    }, { collection: 'users' })
     schema.plugin(mongooseLeanDefaults)
     User = mongoose.model('User', schema)
-    await User.create({ _id: aliceId, name: 'Alice', country: 'CA', aliases: ['Ally'] })
+    await User.create({
+      _id: aliceId,
+      name: 'Alice',
+      country: 'CA',
+      aliases: ['Ally'],
+      nested: {
+        prop: 'Prop',
+        other: false,
+        noDefault: 'Test'
+      }
+    })
     done()
   })
 
