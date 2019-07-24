@@ -3,6 +3,15 @@
 Attach defaults to the results of mongoose queries when using [`.lean()`](https://mongoosejs.com/docs/api.html#query_Query-lean).
 Highly inspired by [mongoose-lean-virtuals](https://github.com/vkarpov15/mongoose-lean-virtuals).
 
+## Install
+```sh
+npm install --save mongoose-lean-defaults
+```
+or
+```sh
+yarn add mongoose-lean-defaults
+```
+
 ## Usage
 
 ```javascript
