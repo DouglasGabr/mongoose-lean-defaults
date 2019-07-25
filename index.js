@@ -93,7 +93,11 @@ function attachDefaultsToDoc(schema, doc, defaults) {
         cur[sp[j]] = sp[j] in cur ? cur[sp[j]] : {}
         cur = cur[sp[j]]
       }
-      cur[sp[sp.length - 1]] = toApply.default
+      let _default = toApply.default
+      if (typeof _default === 'function') {
+        _default = _default.call(doc, doc)
+      }
+      cur[sp[sp.length - 1]] = _default
     }
   }
 }

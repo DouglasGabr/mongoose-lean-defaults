@@ -16,6 +16,7 @@ function validateBob(bob) {
   expect(bob.nested.prop).toBe('Default')
   expect(bob.nested.other).toBe(true)
   expect(bob.nested.noDefault).toBeUndefined()
+  expect(bob.fnDefault).toBe('Bob')
 }
 function validateAlice(alice) {
   expect(alice.country).toBe('CA')
@@ -25,6 +26,7 @@ function validateAlice(alice) {
   expect(alice.nested.prop).toBe('Prop')
   expect(alice.nested.other).toBe(false)
   expect(alice.nested.noDefault).toBe('Test')
+  expect(alice.fnDefault).toBe('Alice')
 }
 
 const bobId = '5d23fa87d7f8b00011fa25c5'
@@ -60,7 +62,8 @@ describe('mongooseLeanDefaults', () => {
           default: true
         },
         noDefault: String
-      }
+      },
+      fnDefault: { type: String, default: function() { return this.name; } }
     }, { collection: 'users' })
     schema.plugin(mongooseLeanDefaults)
     User = mongoose.model('User', schema)
