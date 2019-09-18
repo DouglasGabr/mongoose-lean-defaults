@@ -21,6 +21,8 @@ jobs:
     services:
       mongodb:
         image: mongo
+        ports:
+        - 27017:27017
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
