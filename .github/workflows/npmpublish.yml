@@ -1,15 +1,12 @@
 name: Node.js Package
 
 on:
-  pull_request:
-    branches:
-      - master
-  push:
-    branches:
-      - master
+  release:
+    types: [published]
 
 jobs:
   build:
+    name: Install Dependencies & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -24,6 +21,7 @@ jobs:
         ports:
         - 27017:27017
   publish-npm:
+    name: Publish to NPM
     needs: build
     runs-on: ubuntu-latest
     steps:
