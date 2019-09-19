@@ -32,12 +32,14 @@ function validateAlice(alice) {
 const bobId = '5d23fa87d7f8b00011fa25c5'
 const aliceId = '5d23fa87d7f8b00011fa25c6'
 
+const { MONGO_URI = 'mongodb://localhost:27017/mongooseLeanDefaults' } = process.env
+
 describe('mongooseLeanDefaults', () => {
   let schema
   let User
 
   beforeAll(async done => {
-    await mongoose.connect('mongodb://mongodb:27017/mongooseLeanDefaults', { useNewUrlParser: true })
+    await mongoose.connect(MONGO_URI, { useNewUrlParser: true })
     const oldSchema = new mongoose.Schema({
       name: String
     }, { collection: 'users' })
