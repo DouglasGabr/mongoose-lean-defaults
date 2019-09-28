@@ -54,7 +54,7 @@ function attachDefaults(schema, res) {
       // default in schema type
       if (schemaType.options && Object.prototype.hasOwnProperty.call(schemaType.options, 'default')) {
         defaults.push({ path: pathname, default: schemaType.options.default })
-      } else if (schemaType.defaultValue) { // default with SchemaType.default()
+      } else if (schemaType.defaultValue !== undefined) { // default with SchemaType.default()
         defaults.push({ path: pathname, default: schemaType.defaultValue })
       } else if (schemaType.instance === 'Array') { // arrays should default to an empty array
         defaults.push({ path: pathname, default: [] })

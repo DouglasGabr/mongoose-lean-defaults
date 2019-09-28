@@ -1,3 +1,7 @@
+0.3.1 / 2019-09-28
+==================
+ * Added: support null value in SchemaType.default()
+
 0.3.0 / 2019-09-28
 ==================
  * Added: support SchemaType.default() (Fixes: [#3](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/3))

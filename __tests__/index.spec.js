@@ -7,6 +7,7 @@ function validateRegularBob(bob) {
   expect(bob.arrayWithDefault).toBeUndefined()
   expect(bob.nestedWithoutDefaults).toBeUndefined()
   expect(bob.defaultWithSchemaTypeFn).toBeUndefined()
+  expect(bob.nullWithSchemaTypeFn).toBeUndefined()
   expect(bob.nested).toBeUndefined()
 }
 function validateBob(bob) {
@@ -22,6 +23,7 @@ function validateBob(bob) {
   expect(bob.nested.noDefault).toBeUndefined()
   expect(bob.fnDefault).toBe('Bob')
   expect(bob.defaultWithSchemaTypeFn).toBe('Test Default')
+  expect(bob.nullWithSchemaTypeFn).toBe(null)
 }
 function validateAlice(alice) {
   expect(alice.country).toBe('CA')
@@ -35,6 +37,7 @@ function validateAlice(alice) {
   expect(alice.nested.noDefault).toBe('Test')
   expect(alice.fnDefault).toBe('Alice')
   expect(alice.defaultWithSchemaTypeFn).toBe('Value')
+  expect(alice.nullWithSchemaTypeFn).toBe('Value')
 }
 
 const bobId = '5d23fa87d7f8b00011fa25c5'
@@ -67,6 +70,7 @@ describe('mongooseLeanDefaults', () => {
         test: String,
       },
       defaultWithSchemaTypeFn: String,
+      nullWithSchemaTypeFn: String,
       arrayWithDefault: { type: [String], default: undefined },
       nested: {
         prop: {
@@ -82,6 +86,7 @@ describe('mongooseLeanDefaults', () => {
       fnDefault: { type: String, default: function () { return this.name } }
     }, { collection: 'users' })
     schema.path('defaultWithSchemaTypeFn').default('Test Default')
+    schema.path('nullWithSchemaTypeFn').default(null)
     schema.plugin(mongooseLeanDefaults)
     User = mongoose.model('User', schema)
     // ensure alice is not on database
@@ -99,7 +104,8 @@ describe('mongooseLeanDefaults', () => {
         other: false,
         noDefault: 'Test'
       },
-      defaultWithSchemaTypeFn: 'Value'
+      defaultWithSchemaTypeFn: 'Value',
+      nullWithSchemaTypeFn: 'Value'
     })
     done()
   })
