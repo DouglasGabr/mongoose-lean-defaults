@@ -1,7 +1,9 @@
 'use strict'
-
 const mpath = require('mpath')
 
+/**
+ * @param {import('mongoose').Schema} schema
+ */
 module.exports = function mongooseLeanDefaults(schema) {
   const fn = attachDefaultsMiddleware(schema)
   schema.pre('find', function () {
@@ -23,27 +25,44 @@ module.exports = function mongooseLeanDefaults(schema) {
   schema.post('findOneAndUpdate', fn)
 }
 
+/**
+ * @param {import('mongoose').Schema} schema
+ */
 function attachDefaultsMiddleware(schema) {
   return function (res) {
     attachDefaults.call(this, schema, res)
   }
 }
 
-function attachDefaults(schema, res) {
-  const defaults = []
-  schema.eachPath(function (pathname, schemaType) {
-    if (schemaType.options && Object.prototype.hasOwnProperty.call(schemaType.options, 'default')) {
-      defaults.push({ path: pathname, default: schemaType.options.default })
-    } else if (schemaType.instance === 'Array') {
-      defaults.push({ path: pathname, default: [] })
-    }
-  })
+/**
+ * @typedef Default
+ * @property {string} path
+ * @property {any} default
+ */
 
+/**
+ * @param {import('mongoose').Schema} schema
+ */
+function attachDefaults(schema, res) {
   if (res == null) {
     return
   }
 
   if (this._mongooseOptions.lean && this._mongooseOptions.lean.defaults) {
+    const defaults = []
+    schema.eachPath(function (pathname, schemaType) {
+      // default in schema type
+      if (schemaType.options && Object.prototype.hasOwnProperty.call(schemaType.options, 'default')) {
+        defaults.push({ path: pathname, default: schemaType.options.default })
+      } else if (schemaType.defaultValue) { // default with SchemaType.default()
+        defaults.push({ path: pathname, default: schemaType.defaultValue })
+      } else if (schemaType.instance === 'Array') { // arrays should default to an empty array
+        defaults.push({ path: pathname, default: [] })
+      } else if (pathname.includes('.')) { // create undefined nested defaults to create intermediate objects
+        defaults.push({ path: pathname, default: undefined })
+      }
+    })
+
     let toApply = defaults
     if (Array.isArray(this._mongooseOptions.lean.defaults)) {
       toApply = defaults.filter(({ path }) => this._mongooseOptions.lean.defaults.includes(path))
@@ -75,6 +94,10 @@ function attachDefaults(schema, res) {
   }
 }
 
+/**
+ * @param {import('mongoose').Schema} schema
+ * @param {Default[]} defaults
+ */
 function attachDefaultsToDoc(schema, doc, defaults) {
   const numDefaults = defaults.length
   if (doc == null) return
