@@ -9,6 +9,7 @@ function validateRegularBob(bob) {
   expect(bob.defaultWithSchemaTypeFn).toBeUndefined()
   expect(bob.nullWithSchemaTypeFn).toBeUndefined()
   expect(bob.nested).toBeUndefined()
+  expect(bob.oldNullableObj).toBeNull()
 }
 function validateBob(bob) {
   expect(bob.country).toBe('USA')
@@ -24,6 +25,8 @@ function validateBob(bob) {
   expect(bob.fnDefault).toBe('Bob')
   expect(bob.defaultWithSchemaTypeFn).toBe('Test Default')
   expect(bob.nullWithSchemaTypeFn).toBe(null)
+  expect(bob.oldNullableObj).toBeDefined()
+  expect(bob.oldNullableObj.oldNullableProp).toBeUndefined()
 }
 function validateAlice(alice) {
   expect(alice.country).toBe('CA')
@@ -38,6 +41,8 @@ function validateAlice(alice) {
   expect(alice.fnDefault).toBe('Alice')
   expect(alice.defaultWithSchemaTypeFn).toBe('Value')
   expect(alice.nullWithSchemaTypeFn).toBe('Value')
+  expect(alice.oldNullableObj).toBeDefined()
+  expect(alice.oldNullableObj.oldNullableProp).toBe('Value')
 }
 
 const bobId = '5d23fa87d7f8b00011fa25c5'
@@ -52,14 +57,16 @@ describe('mongooseLeanDefaults', () => {
   beforeAll(async done => {
     await mongoose.connect(MONGO_URI, { useNewUrlParser: true })
     const oldSchema = new mongoose.Schema({
-      name: String
+      name: String,
+      oldNullableObj: mongoose.Schema.Types.Mixed,
     }, { collection: 'users' })
     const OldUser = mongoose.model('OldUser', oldSchema)
     // ensure bob is not on database
     await OldUser.deleteOne({ _id: bobId })
     await OldUser.create({
       _id: bobId,
-      name: 'Bob'
+      name: 'Bob',
+      oldNullableObj: null,
     })
 
     schema = new mongoose.Schema({
@@ -83,14 +90,17 @@ describe('mongooseLeanDefaults', () => {
         },
         noDefault: String
       },
-      fnDefault: { type: String, default: function () { return this.name } }
+      fnDefault: { type: String, default: function () { return this.name } },
+      oldNullableObj: {
+        oldNullableProp: String
+      }
     }, { collection: 'users' })
     schema.path('defaultWithSchemaTypeFn').default('Test Default')
     schema.path('nullWithSchemaTypeFn').default(null)
     schema.plugin(mongooseLeanDefaults)
     User = mongoose.model('User', schema)
     // ensure alice is not on database
-    await User.deleteOne({_id: aliceId})
+    await User.deleteOne({ _id: aliceId })
     await User.create({
       _id: aliceId,
       name: 'Alice',
@@ -105,7 +115,10 @@ describe('mongooseLeanDefaults', () => {
         noDefault: 'Test'
       },
       defaultWithSchemaTypeFn: 'Value',
-      nullWithSchemaTypeFn: 'Value'
+      nullWithSchemaTypeFn: 'Value',
+      oldNullableObj: {
+        oldNullableProp: 'Value'
+      },
     })
     done()
   })

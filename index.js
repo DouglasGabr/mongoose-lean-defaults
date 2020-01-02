@@ -113,7 +113,7 @@ function attachDefaultsToDoc(schema, doc, defaults) {
       const sp = toApply.path.split('.')
       let cur = doc
       for (let j = 0; j < sp.length - 1; ++j) {
-        cur[sp[j]] = sp[j] in cur ? cur[sp[j]] : {}
+        cur[sp[j]] = cur[sp[j]] || {}
         cur = cur[sp[j]]
       }
       let _default = toApply.default
