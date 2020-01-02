@@ -1,6 +1,6 @@
 {
   "name": "mongoose-lean-defaults",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Attach defaults to the results of mongoose queries when using `.lean()`",
   "main": "index.js",
   "scripts": {
