@@ -60,6 +60,8 @@ function attachDefaults(schema, res) {
         defaults.push({ path: pathname, default: [] })
       } else if (pathname.includes('.')) { // create undefined nested defaults to create intermediate objects
         defaults.push({ path: pathname, default: undefined })
+      } else if (schemaType.instance === "Embedded") {
+        defaults.push({ path: pathname, default: {} });
       }
     })
 
