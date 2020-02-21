@@ -1,3 +1,11 @@
+0.4.0 / 2020-02-21
+==================
+ * Added: respect projection when attaching defaults
+
+0.3.2 / 2020-01-02
+==================
+ * Fixed: old null values were breaking nested defaults
+
 0.3.1 / 2019-09-28
 ==================
  * Added: support null value in SchemaType.default()
