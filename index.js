@@ -49,8 +49,23 @@ function attachDefaults(schema, res) {
   }
 
   if (this._mongooseOptions.lean && this._mongooseOptions.lean.defaults) {
+    const projection = this.projection() || {}
+
+    const projectedFields = Object.keys(projection).filter(field => field !== '_id')
+    let projectionInclude = null
+    if (projectedFields.length > 0) {
+      projectionInclude = projection[projectedFields[0]] === 1
+    }
+
     const defaults = []
     schema.eachPath(function (pathname, schemaType) {
+      if (projectionInclude !== null) {
+        if (projectionInclude && !projectedFields.includes(pathname)) {
+          return
+        } else if (!projectionInclude && projectedFields.includes(pathname)) {
+          return
+        }
+      }
       // default in schema type
       if (schemaType.options && Object.prototype.hasOwnProperty.call(schemaType.options, 'default')) {
         defaults.push({ path: pathname, default: schemaType.options.default })

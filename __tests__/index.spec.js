@@ -152,6 +152,35 @@ describe('mongooseLeanDefaults', () => {
     done()
   })
 
+  it('should respect projection', async () => {
+    const inclusionBob = await User
+      .findById(bobId, {
+        'nested.prop': 1,
+        'aliases': 1
+      })
+      .lean({ defaults: true })
+    expect(inclusionBob.name).toBeUndefined()
+    expect(inclusionBob.country).toBeUndefined()
+    expect(inclusionBob.aliases).toBeDefined()
+    expect(inclusionBob.aliases).toHaveLength(0)
+    expect(inclusionBob.nested).toBeDefined()
+    expect(inclusionBob.nested.prop).toBe('Default')
+    expect(inclusionBob.nested.other).toBeUndefined()
+
+    const exclusionBob = await User
+      .findById(bobId, {
+        'nested.prop': 0,
+        'aliases': 0
+      })
+      .lean({ defaults: true })
+    expect(exclusionBob.name).toBe('Bob')
+    expect(exclusionBob.country).toBe('USA')
+    expect(exclusionBob.aliases).toBeUndefined()
+    expect(exclusionBob.nested).toBeDefined()
+    expect(exclusionBob.nested.prop).toBeUndefined()
+    expect(exclusionBob.nested.other).toBe(true)
+  })
+
   afterAll(async done => {
     await User.deleteMany()
     await mongoose.disconnect()
