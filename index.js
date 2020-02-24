@@ -60,9 +60,10 @@ function attachDefaults(schema, res) {
     const defaults = []
     schema.eachPath(function (pathname, schemaType) {
       if (projectionInclude !== null) {
-        if (projectionInclude && !projectedFields.includes(pathname)) {
+        let included = projectedFields.some(path => pathname.indexOf(path) === 0)
+        if (projectionInclude && !included) {
           return
-        } else if (!projectionInclude && projectedFields.includes(pathname)) {
+        } else if (!projectionInclude && included) {
           return
         }
       }
