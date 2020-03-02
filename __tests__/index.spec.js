@@ -55,7 +55,7 @@ describe('mongooseLeanDefaults', () => {
   let User
 
   beforeAll(async done => {
-    await mongoose.connect(MONGO_URI, { useNewUrlParser: true })
+    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     const oldSchema = new mongoose.Schema({
       name: String,
       oldNullableObj: mongoose.Schema.Types.Mixed,
