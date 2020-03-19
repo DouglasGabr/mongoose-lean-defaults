@@ -1,3 +1,7 @@
+0.4.1 / 2020-03-19
+==================
+ * Fixed: return defaults of fields which are nested inside projected object [#8](https://github.com/DouglasGabr/mongoose-lean-defaults/pull/8) [Vladimir Enchev](https://github.com/corsa1r)
+
 0.4.0 / 2020-02-21
 ==================
  * Added: respect projection when attaching defaults
