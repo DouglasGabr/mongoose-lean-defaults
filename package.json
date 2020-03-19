@@ -24,10 +24,10 @@
   },
   "homepage": "https://github.com/douglasgabr/mongoose-lean-defaults#readme",
   "devDependencies": {
-    "@types/jest": "^24.0.15",
+    "@types/jest": "^25.1.4",
     "@types/mongoose": "^5.5.7",
-    "eslint": "^6.0.1",
-    "jest": "^24.8.0",
+    "eslint": "^6.8.0",
+    "jest": "^25.1.0",
     "mongoose": "^5.6.4"
   },
   "dependencies": {
