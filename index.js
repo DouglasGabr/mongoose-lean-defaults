@@ -7,8 +7,8 @@ const mpath = require('mpath')
 module.exports = function mongooseLeanDefaults(schema) {
   const fn = attachDefaultsMiddleware(schema)
   schema.pre('find', function () {
-    if (typeof this.map === 'function') {
-      this.map((res) => {
+    if (typeof this.forEach === 'function') {
+      this.forEach((res) => {
         fn.call(this, res)
         return res
       })
