@@ -10,7 +10,6 @@ module.exports = function mongooseLeanDefaults(schema) {
     if (typeof this.forEach === 'function') {
       this.forEach((res) => {
         fn.call(this, res)
-        return res
       })
     } else {
       this.options.transform = (res) => {
