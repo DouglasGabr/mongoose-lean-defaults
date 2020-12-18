@@ -1,3 +1,9 @@
+1.0.0 / 2020-12-18
+==================
+ * Refactor: use Array#forEach() instead of Array#map() to improve memory usage [#14](https://github.com/DouglasGabr/mongoose-lean-defaults/pull/14) [Hafez](https://github.com/AbdelrahmanHafez)
+ * Fixed: handle `$slice` and `$elemMatch` projections [#12](https://github.com/DouglasGabr/mongoose-lean-defaults/pull/12) [Valeri Karpov](https://github.com/vkarpov15)
+ * Chore: bump version to 1.0.0, since there's no reason to keep it at 0.x, so future changes can be better represented by semver
+
 0.4.1 / 2020-03-19
 ==================
  * Fixed: return defaults of fields which are nested inside projected object [#8](https://github.com/DouglasGabr/mongoose-lean-defaults/pull/8) [Vladimir Enchev](https://github.com/corsa1r)
