@@ -179,6 +179,15 @@ describe('mongooseLeanDefaults', () => {
     expect(exclusionBob.nested).toBeDefined()
     expect(exclusionBob.nested.prop).toBeUndefined()
     expect(exclusionBob.nested.other).toBe(true)
+
+    const elemMatchBob = await User
+      .findById(bobId, {
+        'aliases': { $slice: 1 }
+      })
+      .lean({ defaults: true })
+    expect(elemMatchBob.name).toBe('Bob')
+    expect(elemMatchBob.country).toBe('USA')
+    expect(elemMatchBob.aliases).toStrictEqual([])
   })
 
   afterAll(async done => {

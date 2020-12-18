@@ -51,10 +51,14 @@ function attachDefaults(schema, res) {
   if (this._mongooseOptions.lean && this._mongooseOptions.lean.defaults) {
     const projection = this.projection() || {}
 
-    const projectedFields = Object.keys(projection).filter(field => field !== '_id')
     let projectionInclude = null
+    const projectedFields = Object.keys(projection).filter(field => field !== '_id')
     if (projectedFields.length > 0) {
-      projectionInclude = projection[projectedFields[0]] === 1
+      const definingProjection = projectedFields
+        .find(prop => projection[prop] != null && typeof projection[prop] !== 'object')
+      if (definingProjection != null) {
+        projectionInclude = !!projection[definingProjection]
+      }
     }
 
     const defaults = []
