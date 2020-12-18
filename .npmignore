@@ -1,0 +1,6 @@
+.github/
+__tests__/
+.eslintrc.js
+Dockerfile
+docker-compose.yml
+jest.config.js
