@@ -1,3 +1,7 @@
+1.0.1 / 2020-12-18
+==================
+ * Chore: add .npmignore to not bundle unnecessary files
+
 1.0.0 / 2020-12-18
 ==================
  * Refactor: use Array#forEach() instead of Array#map() to improve memory usage [#14](https://github.com/DouglasGabr/mongoose-lean-defaults/pull/14) [Hafez](https://github.com/AbdelrahmanHafez)
