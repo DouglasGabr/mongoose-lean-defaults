@@ -23,14 +23,23 @@
     "url": "https://github.com/douglasgabr/mongoose-lean-defaults/issues"
   },
   "homepage": "https://github.com/douglasgabr/mongoose-lean-defaults#readme",
-  "devDependencies": {
-    "@types/jest": "^25.1.4",
-    "@types/mongoose": "^5.5.7",
-    "eslint": "^6.8.0",
-    "jest": "^25.1.0",
+  "dependencies": {
+    "mpath": "^0.8.3"
+  },
+  "peerDependencies": {
     "mongoose": "^5.6.4"
   },
-  "dependencies": {
-    "mpath": "^0.6.0"
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.22.1",
+    "@typescript-eslint/parser": "^4.22.1",
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "jest": "^26.0.0",
+    "mongoose": "^5.6.4",
+    "prettier": "2.3.0",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.2.4"
   }
 }

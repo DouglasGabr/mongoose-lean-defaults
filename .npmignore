@@ -4,3 +4,8 @@ __tests__/
 Dockerfile
 docker-compose.yml
 jest.config.js
+.prettierrc.yml
+tsconfig.json
+src/
+types.d.ts
+node_modules/
