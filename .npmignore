@@ -9,3 +9,4 @@ tsconfig.json
 src/
 types.d.ts
 node_modules/
+.eslintignore

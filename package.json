@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "dev": "jest --watchAll"
+    "dev": "jest --watchAll",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

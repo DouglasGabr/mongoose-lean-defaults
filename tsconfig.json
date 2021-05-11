@@ -5,10 +5,12 @@
     "lib": ["ES2015"],
     "declaration": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": true
   },
-  "includes": ["./types.d.ts", "./src/index.ts", "./__tests__/**/*.ts"]
+  "include": ["./types.d.ts", "./src/index.ts"]
 }
