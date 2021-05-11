@@ -1,3 +1,7 @@
+# 1.1.1 / 2021-05-10
+
+- Fixed: build issue
+
 # 1.1.0 / 2021-05-10
 
 - Fixed: should attach subdocument defaults when using projection [#18](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/18) [#16](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/16)

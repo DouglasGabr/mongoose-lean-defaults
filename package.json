@@ -1,9 +1,9 @@
 {
   "name": "mongoose-lean-defaults",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Attach defaults to the results of mongoose queries when using `.lean()`",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "jest",
     "dev": "jest --watchAll",
