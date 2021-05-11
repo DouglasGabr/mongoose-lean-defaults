@@ -6,6 +6,11 @@ on:
 
 jobs:
   build:
+    services:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
     name: Install Dependencies & Test
     runs-on: ubuntu-latest
     steps:
@@ -15,11 +20,12 @@ jobs:
           node-version: 12
       - run: npm ci
       - run: npm test
-    services:
-      mongodb:
-        image: mongo
-        ports:
-          - 27017:27017
+      - run: npm run build
+      - name: Archive dist
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
   publish-npm:
     name: Publish to NPM
     needs: build
@@ -30,6 +36,10 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
+      - name: Download dist
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
