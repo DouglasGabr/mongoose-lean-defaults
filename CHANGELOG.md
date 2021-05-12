@@ -1,12 +1,8 @@
-# 1.1.1 / 2021-05-10
-
-- Fixed: build issue
-
-# 1.1.0 / 2021-05-10
+# 2.0.0 / 2021-05-12
 
 - Fixed: should attach subdocument defaults when using projection [#18](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/18) [#16](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/16)
 - Chore: migrate codebase to typescript
-- Possible breaking change: if using `require('mongoose-lean-defaults')`, you should update it to `require('mongoose-lean-defaults').default`
+- BREAKING CHANGE: if using `require('mongoose-lean-defaults')`, you should update it to `require('mongoose-lean-defaults').default` (should not be a problem if using `import`)
 
 # 1.0.1 / 2020-12-18
 
