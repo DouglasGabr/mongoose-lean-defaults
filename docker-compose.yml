@@ -8,3 +8,5 @@ services:
       MONGO_URI: mongodb://mongodb:27017/mongooseLeanDefaults
   mongodb:
     image: mongo:latest
+    logging:
+      driver: none
