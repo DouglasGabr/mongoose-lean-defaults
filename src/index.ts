@@ -2,7 +2,7 @@
 import mpath from 'mpath';
 import { Schema, Query, Document } from 'mongoose';
 
-export default function mongooseLeanDefaults(schema: Schema): void {
+export default function mongooseLeanDefaults(schema: Schema<any, any>): void {
   const fn = attachDefaultsMiddleware(schema);
   schema.post('find', fn);
   schema.post('findOne', fn);
