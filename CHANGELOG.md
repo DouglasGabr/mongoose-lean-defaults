@@ -1,3 +1,7 @@
+# 2.0.1 / 2021-06-09
+
+- Fixed: should work with typed Schema [#20](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/20)
+
 # 2.0.0 / 2021-05-12
 
 - Fixed: should attach subdocument defaults when using projection [#18](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/18) [#16](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/16)
