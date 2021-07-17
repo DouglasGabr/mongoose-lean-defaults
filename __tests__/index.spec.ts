@@ -81,6 +81,7 @@ describe('mongooseLeanDefaults', () => {
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
     });
     const oldSchema = new mongoose.Schema(
       {

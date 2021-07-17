@@ -46,6 +46,7 @@ describe('Issue #18', () => {
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
     });
     AuthorModel = mongoose.model('Author', AuthorSchema);
   });
