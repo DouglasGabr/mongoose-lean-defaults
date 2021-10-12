@@ -29,7 +29,7 @@
     "mpath": "^0.8.3"
   },
   "peerDependencies": {
-    "mongoose": "^5.6.4"
+    "mongoose": "^5.6.4 || ^6"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
