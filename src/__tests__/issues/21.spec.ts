@@ -1,5 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose';
-import mongooseLeanDefaults from '../../src/index';
+import mongooseLeanDefaults from '../../';
 
 const { MONGO_URI = 'mongodb://localhost:27017/mongooseLeanDefaults' } =
   process.env;
@@ -10,13 +10,13 @@ const OperationSchema = new Schema(
       type: String,
       index: true,
       trim: true,
-      required: 'Name is required',
+      required: [true, 'Name is required'],
     },
     status: {
       type: String,
       enum: ['new', 'active', 'deinstalled'],
       default: 'new',
-      required: 'Status is required',
+      required: [true, 'Status is required'],
     },
     is_supported: {
       type: Boolean,
@@ -40,12 +40,12 @@ const OperationSchema = new Schema(
     organization_id: {
       type: Schema.Types.ObjectId,
       ref: 'Organization',
-      required: 'Organization is required',
+      required: [true, 'Organization is required'],
     },
     seller_id: {
       type: Schema.Types.ObjectId,
       ref: 'Seller',
-      required: 'Seller is required',
+      required: [true, 'Seller is required'],
     },
     customer_venue_id: {
       type: String,
@@ -111,13 +111,13 @@ const OperationSchema = new Schema(
 OperationSchema.plugin(mongooseLeanDefaults);
 
 const existingDocumentInDB = {
-  _id: mongoose.Types.ObjectId('5857d165efd1aa0e00e9901b'),
+  _id: new mongoose.Types.ObjectId(),
   name: 'Test venue',
   street: 'Street 18,',
   zip: '12345',
   country: 'sk',
   city: 'City',
-  organization_id: mongoose.Types.ObjectId('5852a2b1efd1aa0e00e9900f'),
+  organization_id: new mongoose.Types.ObjectId(),
   location: {
     coordinates: [20, 50],
     type: 'Point',
@@ -125,7 +125,7 @@ const existingDocumentInDB = {
   timezone: 'Europe/Berlin',
   modules: ['module'],
   __v: 0,
-  seller_id: mongoose.Types.ObjectId('590addeba8c7dd000ebe6f2d'),
+  seller_id: new mongoose.Types.ObjectId(),
   start_datetime: new Date('2015-01-01T00:00:00.000Z'),
   is_closed_time_monitoring: false,
   is_longer_timeout_monitoring: false,
@@ -136,11 +136,7 @@ const existingDocumentInDB = {
 describe('Issue #21', () => {
   let OperationModel: Model<any>;
   beforeAll(async () => {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-    });
+    await mongoose.connect(MONGO_URI);
     OperationModel = mongoose.model('Operation', OperationSchema);
   });
 

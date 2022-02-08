@@ -7,6 +7,8 @@ export default function mongooseLeanDefaults(schema: Schema<any, any>): void {
   schema.post('find', fn);
   schema.post('findOne', fn);
   schema.post('findOneAndUpdate', fn);
+  schema.post('findOneAndRemove', fn);
+  schema.post('findOneAndDelete', fn);
 }
 
 function attachDefaultsMiddleware(schema: Schema) {
@@ -27,7 +29,7 @@ function attachDefaults(
   depth = 0,
 ) {
   if (res == null) {
-    return;
+    return res;
   }
 
   if (this._mongooseOptions.lean && this._mongooseOptions.lean.defaults) {
@@ -59,6 +61,9 @@ function attachDefaults(
 
     const defaults: DefaultInfo[] = [];
     schema.eachPath(function (pathname, schemaType) {
+      if (pathname.endsWith('.$*')) {
+        return;
+      }
       if (projectionInclude !== null) {
         const included = projectedFields.some(
           (path) =>
@@ -72,19 +77,15 @@ function attachDefaults(
       }
       // default in schema type
       if (
-        // @ts-expect-error schemaType.options is a valid property
         schemaType.options &&
-        // @ts-expect-error schemaType.options is a valid property
         Object.prototype.hasOwnProperty.call(schemaType.options, 'default')
       ) {
-        // @ts-expect-error schemaType.options is a valid property
         defaults.push({ path: pathname, default: schemaType.options.default });
         // @ts-expect-error schemaType.defaultValue is a valid property
       } else if (schemaType.defaultValue !== undefined) {
         // default with SchemaType.default()
         // @ts-expect-error schemaType.defaultValue is a valid property
         defaults.push({ path: pathname, default: schemaType.defaultValue });
-        // @ts-expect-error schemaType.instance is a valid property
       } else if (schemaType.instance === 'Array') {
         // arrays should default to an empty array
         defaults.push({ path: pathname, default: [] });
@@ -113,7 +114,13 @@ function attachDefaults(
     for (let i = 0; i < schema.childSchemas.length; ++i) {
       const _path = schema.childSchemas[i].model.path;
       const _schema = schema.childSchemas[i].schema;
-      const _doc = mpath.get(_path, res);
+      let _doc = mpath.get(_path, res);
+      if (Array.isArray(_doc)) {
+        _doc = _doc.flat();
+        if (_doc.length === 0) {
+          continue;
+        }
+      }
       if (_doc == null) {
         continue;
       }

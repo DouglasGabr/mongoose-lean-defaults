@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import mongooseLeanDefaults from '../../src';
+import mongooseLeanDefaults from '../../';
 
 const { MONGO_URI = 'mongodb://localhost:27017/mongooseLeanDefaults' } =
   process.env;
@@ -36,18 +36,14 @@ const AuthorSchema = new mongoose.Schema(
 );
 AuthorSchema.plugin(mongooseLeanDefaults);
 
-const _id = mongoose.Types.ObjectId('6089736a9a16b50a4bd6e26e');
+const _id = new mongoose.Types.ObjectId('6089736a9a16b50a4bd6e26e');
 
 // https://github.com/DouglasGabr/mongoose-lean-defaults/issues/18
 describe('Issue #18', () => {
   let AuthorModel: mongoose.Model<Author & mongoose.Document>;
 
   beforeAll(async () => {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-    });
+    await mongoose.connect(MONGO_URI);
     AuthorModel = mongoose.model('Author', AuthorSchema);
   });
 

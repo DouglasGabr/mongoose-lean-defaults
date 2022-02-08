@@ -1,3 +1,10 @@
+# 2.1.0 / 2022-02-08
+
+- Fixed: Fields using Map type receive an additional "$\*" key in the result [#24](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/24)
+- Fixed: Recursive schema on array field causes stack overflow [#25](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/25)
+- Added: Attach plugin to `findOneAndRemove` and `findOneAndDelete`
+- Added: Support mongoose v6 (`>=5` in `peerDependencies`)
+
 # 2.0.1 / 2021-06-09
 
 - Fixed: should work with typed Schema [#20](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/20)

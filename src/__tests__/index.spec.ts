@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import mongooseLeanDefaults from '../src';
+import mongooseLeanDefaults from '../';
 
 interface User {
   _id: mongoose.Types.ObjectId;
@@ -78,11 +78,7 @@ describe('mongooseLeanDefaults', () => {
   let User: mongoose.Model<User & mongoose.Document>;
 
   beforeAll(async () => {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-    });
+    await mongoose.connect(MONGO_URI);
     const oldSchema = new mongoose.Schema(
       {
         name: String,

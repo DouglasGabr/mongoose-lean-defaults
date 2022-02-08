@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "target": "es2019",
     "module": "commonjs",
-    "lib": ["ES2015"],
+    "lib": ["ES2019"],
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "removeComments": true
   },
-  "include": ["./types.d.ts", "./src/index.ts"]
+  "include": ["./types.d.ts", "./src/index.ts", "./src/__tests__/**/*.ts"]
 }

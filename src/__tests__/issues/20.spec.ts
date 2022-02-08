@@ -1,5 +1,5 @@
-import { Model, Schema, Document } from 'mongoose';
-import mongooseLeanDefaults from '../../src/index';
+import { Model, Schema } from 'mongoose';
+import mongooseLeanDefaults from '../../';
 
 describe('Issue #20', () => {
   it('works with typed Schema', () => {
@@ -7,7 +7,7 @@ describe('Issue #20', () => {
       name: string;
     }
 
-    const testSchema = new Schema<ITest & Document, Model<ITest & Document>>({
+    const testSchema = new Schema<ITest, Model<ITest>>({
       name: {
         type: String,
         required: true,
