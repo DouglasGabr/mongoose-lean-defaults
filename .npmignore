@@ -6,6 +6,7 @@ docker-compose.yml
 jest.config.js
 .prettierrc.yml
 tsconfig.json
+tsconfig.build.json
 src/
 types.d.ts
 node_modules/
