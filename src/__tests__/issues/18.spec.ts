@@ -68,7 +68,7 @@ describe('Issue #18', () => {
     });
     const withProjections = await AuthorModel.findOne(
       { _id },
-      { name: 1, 'books.title': 1 },
+      { name: 1, books: 1 },
     ).lean({ defaults: true });
     // Assert
     expect(withoutProjection!.books![0].chapters).toStrictEqual([]);

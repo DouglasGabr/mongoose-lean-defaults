@@ -1,8 +1,10 @@
 'use strict';
 import mpath from 'mpath';
-import { Schema, Query, Document } from 'mongoose';
+import mongoose, { Schema, Query, Document, SchemaType } from 'mongoose';
 
-export default function mongooseLeanDefaults(schema: Schema<any, any>): void {
+export default function mongooseLeanDefaults(
+  schema: Schema<any, any, any, any>,
+): void {
   const fn = attachDefaultsMiddleware(schema);
   schema.post('find', fn);
   schema.post('findOne', fn);
@@ -17,98 +19,23 @@ function attachDefaultsMiddleware(schema: Schema) {
   };
 }
 
-interface DefaultInfo {
-  path: string;
-  default: unknown;
-}
-
 function attachDefaults(
   this: Query<unknown, Document>,
   schema: Schema,
   res: unknown,
-  depth = 0,
+  prefix?: string,
 ) {
   if (res == null) {
     return res;
   }
 
   if (this._mongooseOptions.lean && this._mongooseOptions.lean.defaults) {
-    const projection: Record<string, unknown> = this.projection() || {};
-    let projectionInclude: boolean | null = null;
-    let projectedFields = Object.keys(projection).filter(
-      (field) => field !== '_id',
-    );
-    if (depth > 0) {
-      const depthProjectedFields: string[] = [];
-      for (let index = 0; index < projectedFields.length; index++) {
-        const field = projectedFields[index];
-        const newProjectedField = field.split('.').slice(depth).join('.');
-        if (newProjectedField.length > 0) {
-          depthProjectedFields.push(newProjectedField);
-        }
-      }
-      projectedFields = depthProjectedFields;
-    }
-    if (projectedFields.length > 0) {
-      const definingProjection = projectedFields.find(
-        (prop) =>
-          projection[prop] != null && typeof projection[prop] !== 'object',
-      );
-      if (definingProjection != null) {
-        projectionInclude = !!projection[definingProjection];
-      }
-    }
-
-    const defaults: DefaultInfo[] = [];
-    schema.eachPath(function (pathname, schemaType) {
-      if (pathname.endsWith('.$*')) {
-        return;
-      }
-      if (projectionInclude !== null) {
-        const included = projectedFields.some(
-          (path) =>
-            pathname.indexOf(path) === 0 || path.indexOf(pathname) === 0,
-        );
-        if (projectionInclude && !included) {
-          return;
-        } else if (!projectionInclude && included) {
-          return;
-        }
-      }
-      // default in schema type
-      if (
-        schemaType.options &&
-        Object.prototype.hasOwnProperty.call(schemaType.options, 'default')
-      ) {
-        defaults.push({ path: pathname, default: schemaType.options.default });
-        // @ts-expect-error schemaType.defaultValue is a valid property
-      } else if (schemaType.defaultValue !== undefined) {
-        // default with SchemaType.default()
-        // @ts-expect-error schemaType.defaultValue is a valid property
-        defaults.push({ path: pathname, default: schemaType.defaultValue });
-      } else if (schemaType.instance === 'Array') {
-        // arrays should default to an empty array
-        defaults.push({ path: pathname, default: [] });
-      } else if (pathname.includes('.')) {
-        // create undefined nested defaults to create intermediate objects
-        defaults.push({ path: pathname, default: undefined });
-      }
-    });
-
-    let toApply = defaults;
-    if (Array.isArray(this._mongooseOptions.lean.defaults)) {
-      toApply = defaults.filter(({ path }) =>
-        this._mongooseOptions.lean.defaults.includes(path),
-      );
-    }
-    let _ret;
     if (Array.isArray(res)) {
       for (let i = 0; i < res.length; ++i) {
-        attachDefaultsToDoc(schema, res[i], toApply);
+        attachDefaultsToDoc.call(this, schema, res[i], prefix);
       }
-      _ret = res;
     } else {
-      _ret = attachDefaultsToDoc(schema, res, toApply);
+      attachDefaultsToDoc.call(this, schema, res, prefix);
     }
 
     for (let i = 0; i < schema.childSchemas.length; ++i) {
@@ -124,41 +51,96 @@ function attachDefaults(
       if (_doc == null) {
         continue;
       }
-      attachDefaults.call(this, _schema, _doc, depth + 1);
+      attachDefaults.call(
+        this,
+        _schema,
+        _doc,
+        prefix ? `${prefix}.${_path}` : _path,
+      );
     }
 
-    return _ret;
+    return res;
   } else {
     return res;
   }
 }
 
 function attachDefaultsToDoc(
+  this: Query<unknown, Document>,
   schema: Schema,
   doc: unknown,
-  defaults: DefaultInfo[],
+  prefix?: string,
 ) {
   if (doc == null) return;
   if (Array.isArray(doc)) {
     for (let i = 0; i < doc.length; ++i) {
-      attachDefaultsToDoc(schema, doc[i], defaults);
+      attachDefaultsToDoc.call(this, schema, doc[i], prefix);
     }
     return;
   }
-  for (let i = 0; i < defaults.length; ++i) {
-    const defaultToApply = defaults[i];
-    if (!mpath.has(defaultToApply.path, doc)) {
-      const pathSegments = defaultToApply.path.split('.');
-      let cur = doc as Record<string, unknown>;
-      for (let j = 0; j < pathSegments.length - 1; ++j) {
-        cur[pathSegments[j]] = cur[pathSegments[j]] || {};
-        cur = cur[pathSegments[j]] as Record<string, unknown>;
-      }
-      let _default = defaultToApply.default;
-      if (typeof _default === 'function') {
-        _default = _default.call(doc, doc);
-      }
-      cur[pathSegments[pathSegments.length - 1]] = _default;
+  schema.eachPath((pathname, schemaType) => {
+    if (pathname.endsWith('.$*')) {
+      return;
     }
+    if (this.selected()) {
+      const fullPath = prefix ? `${prefix}.${pathname}` : pathname;
+      // @ts-expect-error this._fields is private
+      const fields: Record<string, unknown> | null = this._fields;
+      if (fields) {
+        const fieldKeys = Object.keys(fields);
+        const matchedKey = fieldKeys.find(
+          (key) => fullPath.startsWith(key) || key.startsWith(fullPath),
+        );
+        const included = matchedKey && fields[matchedKey] != null;
+        if (this.selectedInclusively() && !included) {
+          return;
+        }
+        if (this.selectedExclusively() && included) {
+          return;
+        }
+      }
+    }
+    const pathSegments = pathname.split('.');
+    let cur = doc as Record<string, unknown>;
+    const lastIndex = pathSegments.length - 1;
+    for (let j = 0; j < lastIndex; ++j) {
+      cur[pathSegments[j]] = cur[pathSegments[j]] || {};
+      cur = cur[pathSegments[j]] as Record<string, unknown>;
+    }
+    if (typeof cur[pathSegments[lastIndex]] === 'undefined') {
+      let defaultValue = getDefault(schemaType, doc);
+      if (typeof defaultValue === 'undefined') {
+        return;
+      }
+      if (typeof defaultValue === 'function') {
+        defaultValue = defaultValue.call(doc, doc);
+      }
+      cur[pathSegments[lastIndex]] = defaultValue;
+    }
+  });
+}
+
+function getDefault(schemaType: SchemaType, doc: unknown): unknown {
+  // @ts-expect-error defaultValue is a valid prop
+  if (typeof schemaType.defaultValue === 'function') {
+    if (
+      // @ts-expect-error defaultValue is a valid prop
+      schemaType.defaultValue === Date.now ||
+      // @ts-expect-error defaultValue is a valid prop
+      schemaType.defaultValue === Array ||
+      // @ts-expect-error defaultValue is a valid prop
+      schemaType.defaultValue.name.toLowerCase() === 'objectid'
+    ) {
+      // @ts-expect-error defaultValue is a valid prop
+      return schemaType.defaultValue.call(doc);
+    } else {
+      // @ts-expect-error defaultValue is a valid prop
+      return schemaType.defaultValue.call(doc, doc);
+    }
+  } else if (schemaType instanceof mongoose.Schema.Types.Subdocument) {
+    return {};
+  } else {
+    // @ts-expect-error defaultValue is a valid prop
+    return schemaType.defaultValue;
   }
 }
