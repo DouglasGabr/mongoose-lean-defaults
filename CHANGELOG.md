@@ -1,3 +1,8 @@
+# 2.1.1 / 2022-06-03
+
+- Fixed: Make it work reliably with other `lean` plugins
+- Refactored: Code refactored so it is simpler to maintain
+
 # 2.1.0 / 2022-02-08
 
 - Fixed: Fields using Map type receive an additional "$\*" key in the result [#24](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/24)
