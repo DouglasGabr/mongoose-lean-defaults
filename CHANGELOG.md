@@ -1,3 +1,7 @@
+# 2.2.0 / 2022-06-17
+
+- Added: Option to provide global defaults when attaching plugin to schema [#28](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/28)
+
 # 2.1.2 / 2022-06-17
 
 - Fixed: Support mongoose 5 [#27](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/27)
