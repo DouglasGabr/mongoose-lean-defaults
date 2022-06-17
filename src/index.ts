@@ -2,10 +2,15 @@
 import mpath from 'mpath';
 import mongoose, { Schema, Query, Document, SchemaType } from 'mongoose';
 
+export interface MongooseLeanDefaultsOptions {
+  defaults?: boolean;
+}
+
 export default function mongooseLeanDefaults(
   schema: Schema<any, any, any, any>,
+  options?: MongooseLeanDefaultsOptions,
 ): void {
-  const fn = attachDefaultsMiddleware(schema);
+  const fn = attachDefaultsMiddleware(schema, options);
   schema.post('find', fn);
   schema.post('findOne', fn);
   schema.post('findOneAndUpdate', fn);
@@ -13,9 +18,12 @@ export default function mongooseLeanDefaults(
   schema.post('findOneAndDelete', fn);
 }
 
-function attachDefaultsMiddleware(schema: Schema) {
+function attachDefaultsMiddleware(
+  schema: Schema,
+  options?: MongooseLeanDefaultsOptions,
+) {
   return function (this: Query<unknown, Document>, res: unknown) {
-    attachDefaults.call(this, schema, res);
+    attachDefaults.call(this, schema, res, options);
   };
 }
 
@@ -23,13 +31,17 @@ function attachDefaults(
   this: Query<unknown, Document>,
   schema: Schema,
   res: unknown,
+  options?: MongooseLeanDefaultsOptions,
   prefix?: string,
 ) {
   if (res == null) {
     return res;
   }
 
-  if (this._mongooseOptions.lean && this._mongooseOptions.lean.defaults) {
+  const shouldApplyDefaults =
+    this._mongooseOptions.lean?.defaults ?? options?.defaults ?? false;
+
+  if (shouldApplyDefaults) {
     if (Array.isArray(res)) {
       for (let i = 0; i < res.length; ++i) {
         attachDefaultsToDoc.call(this, schema, res[i], prefix);
@@ -55,6 +67,7 @@ function attachDefaults(
         this,
         _schema,
         _doc,
+        options,
         prefix ? `${prefix}.${_path}` : _path,
       );
     }
