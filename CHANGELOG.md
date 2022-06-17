@@ -1,3 +1,7 @@
+# 2.1.2 / 2022-06-17
+
+- Fixed: Support mongoose 5 [#27](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/27)
+
 # 2.1.1 / 2022-06-03
 
 - Fixed: Make it work reliably with other `lean` plugins
