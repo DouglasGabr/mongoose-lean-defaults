@@ -137,7 +137,13 @@ function getDefault(schemaType: SchemaType, doc: unknown): unknown {
       // @ts-expect-error defaultValue is a valid prop
       return schemaType.defaultValue.call(doc, doc);
     }
-  } else if (schemaType instanceof mongoose.Schema.Types.Subdocument) {
+  } else if (
+    ('Embedded' in mongoose.Schema.Types &&
+      // @ts-expect-error Embedded exists in mongoose@5
+      schemaType instanceof mongoose.Schema.Types.Embedded) ||
+    ('Subdocument' in mongoose.Schema.Types &&
+      schemaType instanceof mongoose.Schema.Types.Subdocument)
+  ) {
     return {};
   } else {
     // @ts-expect-error defaultValue is a valid prop
