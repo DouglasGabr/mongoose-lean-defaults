@@ -1,3 +1,8 @@
+# 2.2.1 / 2022-06-24
+
+- Fixed: Respect default value of `undefined` for subschemas [#30](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/30)
+- Fixed: Do not run plugin logic if not using `.lean()` [#29](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/29)
+
 # 2.2.0 / 2022-06-17
 
 - Added: Option to provide global defaults when attaching plugin to schema [#28](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/28)
