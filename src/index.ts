@@ -38,8 +38,9 @@ function attachDefaults(
     return res;
   }
 
-  const shouldApplyDefaults =
-    this._mongooseOptions.lean?.defaults ?? options?.defaults ?? false;
+  const shouldApplyDefaults: boolean =
+    !!this._mongooseOptions.lean &&
+    (this._mongooseOptions.lean.defaults ?? options?.defaults ?? false);
 
   if (shouldApplyDefaults) {
     if (Array.isArray(res)) {
