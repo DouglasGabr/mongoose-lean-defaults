@@ -152,6 +152,10 @@ function getDefault(schemaType: SchemaType, doc: unknown): unknown {
       return schemaType.defaultValue.call(doc, doc);
     }
   } else if (
+    Object.prototype.hasOwnProperty.call(schemaType.options, 'default')
+  ) {
+    return schemaType.options.default;
+  } else if (
     ('Embedded' in mongoose.Schema.Types &&
       // @ts-expect-error Embedded exists in mongoose@5
       schemaType instanceof mongoose.Schema.Types.Embedded) ||

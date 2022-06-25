@@ -28,8 +28,8 @@ const MySchema = new mongoose.Schema(
 
 MySchema.plugin(mongooseLeanDefaults, { defaults: true });
 
-// https://github.com/DouglasGabr/mongoose-lean-defaults/issues/29
-describe('Issue #29', () => {
+// https://github.com/DouglasGabr/mongoose-lean-defaults/issues/30
+describe('Issue #30', () => {
   let MyModel: mongoose.Model<MySchema>;
   beforeAll(async () => {
     await mongoose.connect(MONGO_URI);
@@ -43,9 +43,9 @@ describe('Issue #29', () => {
   afterAll(async () => {
     await mongoose.disconnect();
   });
-  it('should not apply defaults if lean is not used', async () => {
+  it('should respect undefined default on subschema', async () => {
     await MyModel.collection.insertOne({});
-    const result = await MyModel.findOne({}).exec();
+    const result = await MyModel.findOne({}).lean().exec();
     expect(result?.sub).toBeUndefined();
   });
 });
