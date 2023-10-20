@@ -57,3 +57,7 @@ const bob = await UserModel.findOne().lean({ defaults: true });
  * }
  */
 ```
+
+// You can alternatively set a global default when initializing the plugin
+
+updatedUserSchema.plugin(mongooseLeanDefaults, { defaults: true });
