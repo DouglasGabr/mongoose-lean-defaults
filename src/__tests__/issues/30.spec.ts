@@ -10,6 +10,7 @@ interface SubSchema {
 
 interface MySchema {
   sub?: SubSchema | null;
+  sub2?: SubSchema | null;
 }
 
 const SubSchema = new mongoose.Schema({ a: String });
@@ -19,6 +20,9 @@ const MySchema = new mongoose.Schema(
     sub: {
       type: SubSchema,
       default: undefined,
+    },
+    sub2: {
+      type: SubSchema,
     },
   },
   {
@@ -47,5 +51,6 @@ describe('Issue #30', () => {
     await MyModel.collection.insertOne({});
     const result = await MyModel.findOne({}).lean().exec();
     expect(result?.sub).toBeUndefined();
+    expect(result?.sub2).toBeUndefined();
   });
 });
