@@ -26,7 +26,7 @@ const MySchema = new mongoose.Schema(
     },
   },
   {
-    collection: 'issues_28',
+    collection: 'issues_30',
   },
 );
 

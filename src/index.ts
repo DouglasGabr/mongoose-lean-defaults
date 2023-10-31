@@ -114,6 +114,22 @@ function attachDefaultsToDoc(
         }
       }
     }
+
+    // Match Mongoose's default behavior for subdocument defaults: undefined,
+    // not {}.
+    // https://mongoosejs.com/docs/subdocs.html#subdocument-defaults
+    let defaultValue = getDefault(schemaType, doc);
+    if (
+      typeof defaultValue === 'undefined' &&
+      (('Embedded' in mongoose.Schema.Types &&
+        // @ts-expect-error Embedded exists in mongoose@5
+        schemaType instanceof mongoose.Schema.Types.Embedded) ||
+        ('Subdocument' in mongoose.Schema.Types &&
+          schemaType instanceof mongoose.Schema.Types.Subdocument))
+    ) {
+      return;
+    }
+
     const pathSegments = pathname.split('.');
     let cur = doc as Record<string, unknown>;
     const lastIndex = pathSegments.length - 1;
@@ -122,7 +138,6 @@ function attachDefaultsToDoc(
       cur = cur[pathSegments[j]] as Record<string, unknown>;
     }
     if (typeof cur[pathSegments[lastIndex]] === 'undefined') {
-      let defaultValue = getDefault(schemaType, doc);
       if (typeof defaultValue === 'undefined') {
         return;
       }
@@ -162,7 +177,7 @@ function getDefault(schemaType: SchemaType, doc: unknown): unknown {
     ('Subdocument' in mongoose.Schema.Types &&
       schemaType instanceof mongoose.Schema.Types.Subdocument)
   ) {
-    return {};
+    return undefined;
   } else {
     // @ts-expect-error defaultValue is a valid prop
     return schemaType.defaultValue;
