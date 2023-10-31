@@ -131,16 +131,42 @@ describe('projections', () => {
     expect(result.c.a).toEqual(expect.objectContaining({ a: 'a', b: 'b' }));
     expect(result.c.b.a).toEqual('a');
     expect(result.c.b.b).toBeUndefined();
-    expect(result.childA).toEqual(expect.objectContaining({ a: 'a', b: 'b' }));
-    expect(result.childB.a).toEqual(
-      expect.objectContaining({ a: 'a', b: 'b' }),
-    );
-    expect(result.childB.b.a).toEqual('a');
-    expect(result.childB.b.b).toBeUndefined();
-    expect(result.subChildA[0].a).toEqual(
-      expect.objectContaining({ a: 'a', b: 'b' }),
-    );
+    expect(result.childA).toBeUndefined();
+    expect(result.childB).toBeUndefined();
+    expect(result.subChildA[0].a).toBeUndefined();
     expect(result.subChildA[0].b.a).toEqual('a');
     expect(result.subChildA[0].b.b).toBeUndefined();
+  });
+
+  it('should match Mongoose default behavior', async () => {
+    // arrange
+    await MyModel.collection.insertOne({
+      subChildA: [
+        {
+          b: { b: 'b' },
+        },
+      ],
+    });
+    // act
+    const selectQuery = {
+      a: 1,
+      b: 1,
+      'c.a': 1,
+      'c.b.a': 1,
+      childA: 1,
+      'childB.a': 1,
+      'childB.b.a': 1,
+      'subChildA.a': 1,
+      'subChildA.b.a': 1,
+    };
+    const leanResult = (await MyModel.findOne({})
+      .select(selectQuery)
+      .lean({ defaults: true })
+      .exec())!;
+    const hydratedResult = (await MyModel.findOne({})
+      .select(selectQuery)
+      .exec())!;
+    // assert
+    expect(leanResult).toStrictEqual(hydratedResult.toObject());
   });
 });
