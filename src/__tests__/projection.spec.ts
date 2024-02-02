@@ -32,6 +32,8 @@ interface IProjection {
       b: string;
     };
   };
+  childC: string;
+  childCC: string;
 
   subChildA: Array<{
     a: {
@@ -77,6 +79,8 @@ const schema = new Schema<IProjection>(
       a: childSchema,
       b: childSchema,
     },
+    childC: String,
+    childCC: String,
     subChildA: [subChildSchema],
   },
   { collection: 'projection' },
@@ -104,6 +108,7 @@ describe('projections', () => {
   it('should respect projections', async () => {
     // arrange
     await MyModel.collection.insertOne({
+      childC: 'c',
       subChildA: [
         {
           b: { b: 'b' },
@@ -120,6 +125,7 @@ describe('projections', () => {
         childA: 1,
         'childB.a': 1,
         'childB.b.a': 1,
+        childC: 1,
         'subChildA.a': 1,
         'subChildA.b.a': 1,
       })
@@ -137,6 +143,8 @@ describe('projections', () => {
     );
     expect(result.childB.b.a).toEqual('a');
     expect(result.childB.b.b).toBeUndefined();
+    expect(result.childC).toEqual('c');
+    expect(result.childCC).toBeUndefined();
     expect(result.subChildA[0].a).toEqual(
       expect.objectContaining({ a: 'a', b: 'b' }),
     );

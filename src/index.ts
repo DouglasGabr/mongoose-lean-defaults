@@ -103,7 +103,10 @@ function attachDefaultsToDoc(
       if (fields) {
         const fieldKeys = Object.keys(fields);
         const matchedKey = fieldKeys.find(
-          (key) => fullPath.startsWith(key) || key.startsWith(fullPath),
+          (key) =>
+            fullPath.startsWith(key + '.') ||
+            key.startsWith(fullPath + '.') ||
+            fullPath === key,
         );
         const included = matchedKey && fields[matchedKey] != null;
         if (this.selectedInclusively() && !included) {
