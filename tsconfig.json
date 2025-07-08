@@ -12,5 +12,10 @@
     "forceConsistentCasingInFileNames": true,
     "removeComments": true
   },
-  "include": ["./types.d.ts", "./src/index.ts", "./src/__tests__/**/*.ts"]
+  "include": [
+    "./types.d.ts",
+    "./src/index.ts",
+    "./src/__tests__/**/*.ts",
+    "./src/bench/**/*.ts"
+  ]
 }

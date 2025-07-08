@@ -27,7 +27,7 @@ function attachDefaultsMiddleware(
   };
 }
 
-function attachDefaults(
+export function attachDefaults(
   this: Query<unknown, Document>,
   schema: Schema,
   res: unknown,
