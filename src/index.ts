@@ -5,6 +5,13 @@ import mongoose, { Schema, Query, Document, SchemaType } from 'mongoose';
 export interface MongooseLeanDefaultsOptions {
   defaults?: boolean;
 }
+interface Default {
+  value: unknown | undefined;
+  fnValue: ((doc: unknown) => unknown) | undefined;
+  pathSegments: string[];
+}
+
+const DEFAULTS_REGISTRY = new Map<Schema, Default[]>();
 
 export default function mongooseLeanDefaults(
   schema: Schema<any, any, any, any>,
@@ -16,6 +23,78 @@ export default function mongooseLeanDefaults(
   schema.post('findOneAndUpdate', fn);
   schema.post('findOneAndRemove', fn);
   schema.post('findOneAndDelete', fn);
+}
+
+function getDefaultsRegistryEntry(schema: Schema): Default[] {
+  const existing = DEFAULTS_REGISTRY.get(schema);
+  if (existing) {
+    return existing;
+  }
+
+  const defaults: Default[] = [];
+  const defaultedTrie: Record<string, unknown> = {};
+  const nestedPathsSegmentsWithNoDefault: string[][] = [];
+
+  schema.eachPath((pathname, schemaType) => {
+    if (pathname.endsWith('.$*')) {
+      return;
+    }
+    const pathSegments = pathname.split('.');
+    const defaultValue = getDefault(schemaType);
+
+    if (defaultValue !== undefined) {
+      const isFunc = typeof defaultValue === 'function';
+      defaults.push({
+        value: isFunc ? undefined : defaultValue,
+        fnValue: isFunc ? (defaultValue as Default['fnValue']) : undefined,
+        pathSegments,
+      });
+
+      // Populate the trie data structure to know which intermediate values are already covered
+      let cur = defaultedTrie;
+      for (let i = 0; i < pathSegments.length - 1; ++i) {
+        cur[pathSegments[i]] = cur[pathSegments[i]] || {};
+        cur = cur[pathSegments[i]] as Record<string, unknown>;
+      }
+    } else if (pathSegments.length > 1) {
+      nestedPathsSegmentsWithNoDefault.push(pathSegments);
+    }
+  });
+
+  // If the value does not have a default but it's a nested path we still want to default
+  // all of the intermediate values. We will do it by creating a fake empty default if the path
+  // intermediates are not covered by a real default already. `attachDefaultsToDoc` will handle
+  // the creation of these intermediates.
+
+  // Sort the array to have longest paths first to avoid creating redundant empty defaults.
+  nestedPathsSegmentsWithNoDefault.sort((a, b) => b.length - a.length);
+  for (let i = 0; i < nestedPathsSegmentsWithNoDefault.length; i++) {
+    const pathSegments = nestedPathsSegmentsWithNoDefault[i];
+
+    let covered = true;
+    let cur = defaultedTrie;
+
+    for (let j = 0; j < pathSegments.length - 1; ++j) {
+      if (!cur[pathSegments[j]]) {
+        covered = false;
+      }
+
+      cur[pathSegments[j]] = cur[pathSegments[j]] || {};
+      cur = cur[pathSegments[j]] as Record<string, unknown>;
+    }
+
+    if (!covered) {
+      defaults.push({
+        value: undefined,
+        fnValue: undefined,
+        pathSegments,
+      });
+    }
+  }
+
+  DEFAULTS_REGISTRY.set(schema, defaults);
+
+  return defaults;
 }
 
 function attachDefaultsMiddleware(
@@ -43,17 +122,22 @@ export function attachDefaults(
     (this._mongooseOptions.lean.defaults ?? options?.defaults ?? false);
 
   if (shouldApplyDefaults) {
-    if (Array.isArray(res)) {
-      for (let i = 0; i < res.length; ++i) {
-        attachDefaultsToDoc.call(this, schema, res[i], prefix);
+    if (getDefaultsRegistryEntry(schema).length) {
+      if (Array.isArray(res)) {
+        for (let i = 0; i < res.length; ++i) {
+          attachDefaultsToDoc.call(this, schema, res[i], prefix);
+        }
+      } else {
+        attachDefaultsToDoc.call(this, schema, res, prefix);
       }
-    } else {
-      attachDefaultsToDoc.call(this, schema, res, prefix);
     }
 
     for (let i = 0; i < schema.childSchemas.length; ++i) {
-      const _path = schema.childSchemas[i].model.path;
       const _schema = schema.childSchemas[i].schema;
+      if (!getDefaultsRegistryEntry(_schema).length) {
+        continue;
+      }
+      const _path = schema.childSchemas[i].model.path;
       let _doc = mpath.get(_path, res);
       if (Array.isArray(_doc)) {
         _doc = _doc.flat();
@@ -92,49 +176,56 @@ function attachDefaultsToDoc(
     }
     return;
   }
-  schema.eachPath((pathname, schemaType) => {
-    if (pathname.endsWith('.$*')) {
-      return;
-    }
-    if (this.selected()) {
+
+  const defaults = getDefaultsRegistryEntry(schema);
+  if (!defaults.length) {
+    return;
+  }
+  // @ts-expect-error this._fields is private
+  const fields: Record<string, unknown> | null = this._fields;
+  const selectedFieldKeys: string[] | null =
+    this.selected() && fields ? Object.keys(fields) : null;
+
+  for (let i = 0; i < defaults.length; i++) {
+    const defaultEntry = defaults[i];
+
+    if (selectedFieldKeys) {
+      const pathname = defaultEntry.pathSegments.join('.');
       const fullPath = prefix ? `${prefix}.${pathname}` : pathname;
-      // @ts-expect-error this._fields is private
-      const fields: Record<string, unknown> | null = this._fields;
-      if (fields) {
-        const fieldKeys = Object.keys(fields);
-        const matchedKey = fieldKeys.find(
-          (key) => fullPath.startsWith(key) || key.startsWith(fullPath),
-        );
-        const included = matchedKey && fields[matchedKey] != null;
-        if (this.selectedInclusively() && !included) {
-          return;
-        }
-        if (this.selectedExclusively() && included) {
-          return;
-        }
+      const matchedKey = selectedFieldKeys.find(
+        (key) => fullPath.startsWith(key) || key.startsWith(fullPath),
+      );
+
+      const included = matchedKey && fields?.[matchedKey] != null;
+      if (this.selectedInclusively() && !included) {
+        continue;
+      }
+      if (this.selectedExclusively() && included) {
+        continue;
       }
     }
-    const pathSegments = pathname.split('.');
+
+    const pathSegments = defaultEntry.pathSegments;
     let cur = doc as Record<string, unknown>;
     const lastIndex = pathSegments.length - 1;
     for (let j = 0; j < lastIndex; ++j) {
       cur[pathSegments[j]] = cur[pathSegments[j]] || {};
       cur = cur[pathSegments[j]] as Record<string, unknown>;
     }
-    if (typeof cur[pathSegments[lastIndex]] === 'undefined') {
-      let defaultValue = getDefault(schemaType, doc);
-      if (typeof defaultValue === 'undefined') {
-        return;
+
+    if (cur[pathSegments[lastIndex]] === undefined) {
+      let valueToDefault = defaultEntry.value;
+      if (defaultEntry.fnValue) {
+        valueToDefault = defaultEntry.fnValue(doc);
       }
-      if (typeof defaultValue === 'function') {
-        defaultValue = defaultValue.call(doc, doc);
+      if (valueToDefault !== undefined) {
+        cur[pathSegments[lastIndex]] = valueToDefault;
       }
-      cur[pathSegments[lastIndex]] = defaultValue;
     }
-  });
+  }
 }
 
-function getDefault(schemaType: SchemaType, doc: unknown): unknown {
+function getDefault(schemaType: SchemaType): unknown {
   // @ts-expect-error defaultValue is a valid prop
   if (typeof schemaType.defaultValue === 'function') {
     if (
@@ -145,15 +236,25 @@ function getDefault(schemaType: SchemaType, doc: unknown): unknown {
       // @ts-expect-error defaultValue is a valid prop
       schemaType.defaultValue.name.toLowerCase() === 'objectid'
     ) {
-      // @ts-expect-error defaultValue is a valid prop
-      return schemaType.defaultValue.call(doc);
+      return function (doc: unknown) {
+        // @ts-expect-error defaultValue is a valid prop
+        return schemaType.defaultValue.call(doc);
+      };
     } else {
-      // @ts-expect-error defaultValue is a valid prop
-      return schemaType.defaultValue.call(doc, doc);
+      return function (doc: unknown) {
+        // @ts-expect-error defaultValue is a valid prop
+        return schemaType.defaultValue.call(doc, doc);
+      };
     }
   } else if (
     Object.prototype.hasOwnProperty.call(schemaType.options, 'default')
   ) {
+    // Sanity check for function defaults
+    if (typeof schemaType.options.default === 'function') {
+      return function (doc: unknown) {
+        return schemaType.options.default.call(doc, doc);
+      };
+    }
     return schemaType.options.default;
   } else if (
     ('Embedded' in mongoose.Schema.Types &&
@@ -162,7 +263,9 @@ function getDefault(schemaType: SchemaType, doc: unknown): unknown {
     ('Subdocument' in mongoose.Schema.Types &&
       schemaType instanceof mongoose.Schema.Types.Subdocument)
   ) {
-    return {};
+    return function () {
+      return {};
+    };
   } else {
     // @ts-expect-error defaultValue is a valid prop
     return schemaType.defaultValue;
