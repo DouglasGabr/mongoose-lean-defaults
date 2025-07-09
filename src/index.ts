@@ -11,7 +11,7 @@ interface Default {
   pathSegments: string[];
 }
 
-const DEFAULTS_REGISTRY = new Map<Schema, Default[]>();
+const DEFAULTS_REGISTRY = new WeakMap<Schema, Default[]>();
 
 export default function mongooseLeanDefaults(
   schema: Schema<any, any, any, any>,
