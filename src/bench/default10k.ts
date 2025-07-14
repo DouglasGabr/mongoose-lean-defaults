@@ -48,11 +48,9 @@ export function benchDefault10k() {
   function makeData(count: number) {
     return Array.from({ length: count }, () => ({
       _id: new mongoose.Types.ObjectId(),
-      prop3: [
-        Array.from({ length: 10 }, () => ({
-          nestedProp1: 'nestedProp1',
-        })),
-      ],
+      prop3: Array.from({ length: 10 }, () => ({
+        nestedProp1: 'nestedProp1',
+      })),
     }));
   }
 
