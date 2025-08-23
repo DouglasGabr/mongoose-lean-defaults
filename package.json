@@ -7,7 +7,8 @@
   "scripts": {
     "test": "jest",
     "dev": "jest --watchAll",
-    "build": "tsc --project tsconfig.build.json"
+    "build": "tsc --project tsconfig.build.json",
+    "bench": "tsc --project tsconfig.json && node dist/bench/index.js"
   },
   "repository": {
     "type": "git",
