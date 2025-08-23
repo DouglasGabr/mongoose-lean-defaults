@@ -29,7 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.node }}
-          path: dist-${{ matrix.node }}
+          path: dist
   publish-npm:
     name: Publish to NPM
     needs: build
