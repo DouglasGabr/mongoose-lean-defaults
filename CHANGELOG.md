@@ -1,3 +1,7 @@
+# 2.3.0 / 2025-08-23
+
+- Perf: improve performance by looping through schema paths only once instead of multiple times [#38](https://github.com/DouglasGabr/mongoose-lean-defaults/pull/38)
+
 # 2.2.1 / 2022-06-24
 
 - Fixed: Respect default value of `undefined` for subschemas [#30](https://github.com/DouglasGabr/mongoose-lean-defaults/issues/30)
