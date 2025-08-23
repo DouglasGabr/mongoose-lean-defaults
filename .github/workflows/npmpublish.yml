@@ -26,10 +26,10 @@ jobs:
       - run: npm test
       - run: npm run build
       - name: Archive dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: dist
+          name: dist-${{ matrix.node }}
+          path: dist-${{ matrix.node }}
   publish-npm:
     name: Publish to NPM
     needs: build
@@ -41,9 +41,11 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - name: Download dist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: dist
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
