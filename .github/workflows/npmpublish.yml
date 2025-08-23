@@ -8,7 +8,7 @@ jobs:
   build:
     strategy:
       matrix:
-        node: ['12', '14', '16', '18']
+        node: ['16', '18', '20', '22']
     services:
       mongodb:
         image: mongo
