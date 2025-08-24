@@ -1,3 +1,7 @@
+# 2.3.1 / 2025-08-24
+
+- Fixed: NPM publish action broke main property in package.json
+
 # 2.3.0 / 2025-08-23
 
 - Perf: improve performance by looping through schema paths only once instead of multiple times [#38](https://github.com/DouglasGabr/mongoose-lean-defaults/pull/38)
